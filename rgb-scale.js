@@ -1,27 +1,17 @@
 (function(root) {
   'use strict';
 
-  function RGBScale(colors, positions, domain) {
-    var scale = (new Scale())
-      .colors(colors)
-      .positions(positions)
-      .domain(domain);
-
-    var getColor = function(value) {
-      return scale.getColor(value);
-    };
-
-    getColor._scale = scale;
-
-    return getColor;
-  }
-
   /**
-   * Scale
+   * RGBScale
+   * @desc RGB color scale.
+   * @param {number[]} colors - rgb colors in array
+   * @param {number[]} positions - color position offsets
+   * @param {number[]} domain - scale domain
+   * @return {function} scale function
    */
-  function Scale() {
-    if (!(this instanceof Scale)) {
-      return new Scale();
+  function RGBScale(colors, positions, domain) {
+    if (!(this instanceof RGBScale)) {
+      return new RGBScale(colors, positions, domain);
     }
 
     this._colors = [];
@@ -31,9 +21,22 @@
     this._max = 1;
     this._numClasses = 0;
     this._colorCache = {};
+
+    this.colors(colors);
+    this.positions(positions);
+    this.domain(domain);
+
+    return function(value) {
+      return this._getColor(value);
+    }.bind(this);
   }
 
-  Scale.prototype.colors = function(colors) {
+  /**
+   * colors
+   * @desc Set color values
+   * @param {number[]} colors - RGB color values
+   */
+  RGBScale.prototype.colors = function(colors) {
     if (Array.isArray(colors)) {
       this._resetCache();
       this._colors = colors.slice(0);
@@ -48,7 +51,12 @@
     return this;
   };
 
-  Scale.prototype.positions = function(positions) {
+  /**
+   * positions
+   * @desc Set position values
+   * @param {number[]} positions - position values
+   */
+  RGBScale.prototype.positions = function(positions) {
     if (Array.isArray(positions)) {
       this._positions = positions.slice(0);
     } else {
@@ -67,7 +75,12 @@
     return this;
   };
 
-  Scale.prototype.domain = function(domain) {
+  /**
+   * domain
+   * @desc Set domain and min/max values
+   * @param {number[]} domain - domain values
+   */
+  RGBScale.prototype.domain = function(domain) {
     if (Array.isArray(domain)) {
       this._domain = domain.slice(0);
       this._min = domain[0];
@@ -85,11 +98,21 @@
     return this;
   };
 
-  Scale.prototype._resetCache = function() {
+  /**
+   * resetCache
+   * @desc Reset color cache
+   */
+  RGBScale.prototype._resetCache = function() {
     this._colorCache = {};
   };
 
-  Scale.prototype._getClass = function(value) {
+  /**
+   * getClass
+   * @desc Return class for domain value
+   * @param {number} value - domain value
+   * @return {number} class value
+   */
+  RGBScale.prototype._getClass = function(value) {
     if (this._domain.length) {
       var n = this._domain.length;
       var i = 0;
@@ -104,7 +127,13 @@
     return 0;
   };
 
-  Scale.prototype.getColor = function(value) {
+  /**
+   * getColor
+   * @desc Return color for domain value
+   * @param {number} value - domain value
+   * @return {number[]} RGB color
+   */
+  RGBScale.prototype._getColor = function(value) {
     var t;
     var color;
 
@@ -139,7 +168,7 @@
 
         if (t > p && t < this._positions[i + 1]) {
           t = (t - p) / (this._positions[i + 1] - p);
-          color = Scale._interpolateRGB(this._colors[i], this._colors[i + 1], t);
+          color = RGBScale._interpolateRGB(this._colors[i], this._colors[i + 1], t);
           break;
         }
       }
@@ -159,7 +188,7 @@
    * @desc clamp colors to 0 or to 255 if out of bounds
    * @param {number[]} rgb - rgb colors in array
    */
-  Scale._clipRGB = function(rgb) {
+  RGBScale._clipRGB = function(rgb) {
     if (!(Array.isArray(rgb) && rgb.length >= 3)) {
       rgb = [0,0,0,1];
     }
@@ -189,7 +218,7 @@
    * @param {number} target - target value
    * @return clipped value
    */
-  Scale._clipT = function(t) {
+  RGBScale._clipT = function(t) {
     if (typeof t !== 'number') {
       t = 0;
     }
@@ -211,10 +240,10 @@
    * @param {number} target - target value between units 0 - 1
    * @return interpolated rgb color array
    */
-  Scale._interpolateRGB =  function(rgb1, rgb2, t) {
-    rgb1 = Scale._clipRGB(rgb1);
-    rgb2 = Scale._clipRGB(rgb2);
-    t = Scale._clipT(t);
+  RGBScale._interpolateRGB =  function(rgb1, rgb2, t) {
+    rgb1 = RGBScale._clipRGB(rgb1);
+    rgb2 = RGBScale._clipRGB(rgb2);
+    t = RGBScale._clipT(t);
 
     var r_1 = rgb1[0];
     var g_1 = rgb1[1];
@@ -247,5 +276,4 @@
   } else {
     root.RGBScale = RGBScale;
   }
-
 })(this);
