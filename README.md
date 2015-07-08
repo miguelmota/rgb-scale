@@ -1,6 +1,6 @@
 # rgb-scale
 
-> RGB color scale.
+> RGB color scale
 
 [![NPM](https://nodei.co/npm/rgb-scale.png)](https://nodei.co/npm/rgb-scale)
 
