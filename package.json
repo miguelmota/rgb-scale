@@ -1,6 +1,6 @@
 {
   "name": "rgb-scale",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "RGB color scale",
   "main": "rgb-scale.js",
   "directories": {
